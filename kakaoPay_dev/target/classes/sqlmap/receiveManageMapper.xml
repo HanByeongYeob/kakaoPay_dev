@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="receiveManageDao">
+
+	<!-- 받기 정보 입력-->
+	<insert id="insertReceiveInfo" parameterType="ReceiveManageVO">
+		INSERT INTO public.TBL_RECEIVE_INFO(
+			D_DUTCH_ID,
+			R_USER_ID,
+			R_REGISTER_DT,
+			R_AMOUNT,
+			R_COMPLET_YN
+		)
+		VALUES(
+			#{dDutchId},
+			#{rUserId},
+			current_timestamp,
+			#{rAmount},
+			'N'
+		)
+	</insert>
+	
+	<!-- 받기 정보 조회 -->
+	<select id="selectReceiveInfo" parameterType="ReceiveManageVO" resultType="ReceiveInfoVO">
+		SELECT 
+		 	R_RECEIVE_ID as rReceiveId,
+			D_DUTCH_ID as dDutchId,
+			R_USER_ID as rUserId,
+			TO_CHAR(R_REGISTER_DT, 'YYYY-MM-DD HH24:MI:SS') as rRegisterDt,
+			R_AMOUNT as rAmount,
+			R_COMPLET_YN as rCompletYn
+		FROM public.TBL_RECEIVE_INFO
+		WHERE 1=1
+		<if test="dDutchId != null and dDutchId != '' " >
+			AND D_DUTCH_ID = #{dDutchId}
+		</if>
+		<if test="rUserId != null and rUserId != '' " >
+			AND R_USER_ID = #{rUserId}
+		</if>
+		<if test="rCompletYn != null and rCompletYn != '' " >
+			AND R_COMPLET_YN = #{rCompletYn}
+		</if>
+	</select>
+	
+	<update id="updateReceiveInfo" parameterType="ReceiveInfoVO">
+		UPDATE 
+			public.TBL_RECEIVE_INFO
+		SET R_COMPLET_YN = 'Y'
+		WHERE R_RECEIVE_ID = #{rReceiveId}
+	</update>
+</mapper>

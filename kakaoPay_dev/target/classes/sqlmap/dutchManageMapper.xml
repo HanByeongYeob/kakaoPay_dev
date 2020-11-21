@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="dutchManageDao">
+
+	<!-- 사용자 정보 조회 -->
+	<select id="selectUserInfo" parameterType="Integer" resultType="DutchManageVO">
+		SELECT 
+			X_USER_ID as xUserId,
+			X_USER_NAME as xUserName,
+			X_USER_BALANCE as xUserBalance
+		FROM public.TBL_USER_INFO
+		WHERE X_USER_ID = #{xUserId}
+	</select>
+	
+	<!-- 단톡방 멤버 조회 -->
+	<select id="selectRoomMemberList" parameterType="DutchManageVO" resultType="DutchManageVO">
+		SELECT 
+			X_ROOM_ID as xRoomId,
+			X_ROOM_NAME as xRoomName,
+			X_USER_ID as xUserId
+		FROM public.TBL_ROOM_INFO
+		WHERE X_ROOM_ID = #{xRoomId}
+		AND X_USER_ID != #{xUserId}
+	</select>
+	
+	<!-- 토큰 중복값 조회 -->
+	<select id="selectOverlappingTokenValue" parameterType="DutchManageVO" resultType="int">
+		SELECT 
+			count(*)
+		FROM public.TBL_DUTCH_INFO
+		WHERE 1=1
+			AND D_TOKEN_VALUE = #{dTokenValue}
+			AND D_ROOM_ID = #{xRoomId}
+	</select>
+	<!-- 뿌리기 정보 입력 -->
+	<insert id="insertDutchInfo" parameterType="DutchManageVO">
+		<selectKey keyProperty="dDutchId" resultType="int" order="AFTER">
+	    	select currval('seq_dutch') as dDutchId
+	  	</selectKey>
+		INSERT INTO public.TBL_DUTCH_INFO(
+			D_DUTCH_ID,
+			D_TOKEN_VALUE,
+			D_ROOM_ID,
+			D_USER_ID,
+			D_REGISTER_DT,
+			D_AMOUNT,
+			D_NUM_PEOPLE,
+			D_COMPLET_YN
+		)
+		VALUES(
+			nextval('seq_dutch'),
+			#{dTokenValue},
+			#{xRoomId},
+			#{xUserId},
+			current_timestamp,
+			#{dAmount},
+			#{dNumPeople},
+			'N'
+		)
+	</insert>
+	
+	<!-- 사용자 계좌 정보 업데이트 -->
+	<update id="updateUserBalance" parameterType="DutchManageVO">
+		UPDATE public.TBL_USER_INFO
+		SET X_USER_BALANCE = #{xUserBalance}
+		WHERE X_USER_ID = #{xUserId}
+	</update>
+	
+	<!-- 뿌리기 정보 조회 -->
+	<select id="selectDutchInfo" parameterType="DutchManageVO" resultType="DutchInfoVO">
+		SELECT 
+			D_DUTCH_ID as dDutchId,
+			D_TOKEN_VALUE as dTokenValue,
+			D_ROOM_ID as dRoomId,
+			D_USER_ID as dUserId,
+			TO_CHAR(D_REGISTER_DT, 'YYYY-MM-DD HH24:MI:SS') as dRegisterDt,
+			D_AMOUNT as dAount,
+			D_NUM_PEOPLE as dNumPeople,
+			TO_CHAR(D_REGISTER_DT + INTERVAL '7 day', 'YYYYMMDDHH24MISS') as dExpiryDt,
+			TO_CHAR(D_REGISTER_DT + INTERVAL '10 minute', 'YYYYMMDDHH24MISS') as rExpiryDt,
+			D_COMPLET_YN as dCompletYn
+		FROM public.TBL_DUTCH_INFO
+		WHERE 1=1
+		<if test="dTokenValue != null and dTokenValue != '' " >
+			AND D_TOKEN_VALUE = #{dTokenValue}
+		</if>
+		<if test="xUserId != null and xUserId != '' " >
+			AND D_USER_ID = #{xUserId}
+		</if>
+		<if test="xRoomId != null and xRoomId != '' " >
+			AND D_ROOM_ID = #{xRoomId}
+		</if>
+	</select>
+	
+	<!-- 뿌리기 정보 업데이트-->
+	<update id="updateDutchInfo" parameterType="Integer">
+		UPDATE public.TBL_DUTCH_INFO
+		SET D_COMPLET_YN = 'Y'
+		WHERE D_DUTCH_ID = #{dDutchId}
+	</update>
+</mapper>

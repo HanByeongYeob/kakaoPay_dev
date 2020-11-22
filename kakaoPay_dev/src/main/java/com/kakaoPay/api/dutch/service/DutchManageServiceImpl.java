@@ -170,7 +170,7 @@ public class DutchManageServiceImpl implements DutchManageService{
 		String tokenValue = "";
 		for (int i = 0; i < 3; i++) {
 	    	int a = (int) ((Math.random() * 74) + 48);
-	    	if((a>58&&a<64) || (a>91&&a<96)) {
+	    	if((a>=58&&a<=64) || (a>=91&&a<=96)) {
 	    		i--;
 	    	}else {
 	    		char ch = (char) a;

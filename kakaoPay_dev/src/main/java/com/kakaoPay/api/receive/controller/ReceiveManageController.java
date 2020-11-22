@@ -161,6 +161,7 @@ public class ReceiveManageController {
 		logger.info("-----------받기 시작-----------");
 		rAmount = receiveManageService.receiveRAmount(receiveUserInfo);           
 		logger.info("-----------받기 끝-----------");
+		result.put("rAmount", rAmount);
 		logger.info("-----------받기 API 끝-----------");
 		return result;
 	}

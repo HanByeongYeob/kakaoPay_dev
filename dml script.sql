@@ -46,6 +46,3 @@ X_USER_ID)
 VALUES
 ('kakao', '카카오방', 789);
 
-commit;
-
-

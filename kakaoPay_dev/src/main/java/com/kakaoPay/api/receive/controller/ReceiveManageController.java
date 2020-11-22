@@ -145,7 +145,7 @@ public class ReceiveManageController {
 	    //받기 분배에 할당된 사용자인지 확인
 	    if(receiveInfoList.size() < 1) {
 	    	result.put("code", "4");
-			result.put("msg", "You failed to receive the money");
+			result.put("msg", "You failed to receive the money.");
 	    	return result;
 	    }
 	    
